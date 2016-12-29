@@ -1,0 +1,13 @@
+[package]
+name = "pamphlets"
+version = "0.1.0"
+authors = ["Brecht Savelkoul <brecht.savelkoul@gmail.com>"]
+
+[[bin]]
+name = "pamphlets"
+path = "src/main.rs"
+
+[dependencies]
+hyper = "0.9"
+nickel = "0.9"
+shelf = "0.2"
