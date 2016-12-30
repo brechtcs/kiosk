@@ -4,6 +4,10 @@ pub fn bad_request<'app>(res: Response<'app>) -> MiddlewareResult<'app> {
   res.send("Four'O'Zero")
 }
 
+pub fn not_allowed<'app>(res: Response<'app>) -> MiddlewareResult<'app> {
+  res.send("Four'O'Three")
+}
+
 pub fn not_found<'app>(res: Response<'app>) -> MiddlewareResult<'app> {
   res.send("Four'O'Four")
 }

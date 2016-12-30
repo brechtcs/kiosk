@@ -47,7 +47,6 @@ fn try_serve<'app>(subdomain: &str, uri: String, res: Response<'app>) -> Middlew
 fn try_proxy<'app>(address: String, uri: String, mut res: Response<'app>) -> MiddlewareResult<'app> {
   let http = Client::new();
   let url = address + &uri;
-  println!("{}", url);
 
   match http.get(&url).send() {
     Err(why) => server_error(res, &why.to_string(), "try_proxy request"),

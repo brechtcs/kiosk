@@ -1,8 +1,12 @@
 use nickel::{FormBody, Request, Response, MiddlewareResult};
-use reject::{bad_request};
+use reject::{bad_request, not_allowed};
 use store::Store;
 
-pub fn get<'app>(_req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
+pub fn get<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
+  if !req.origin.remote_addr.ip().is_loopback() {
+    return not_allowed(res);
+  }
+
   let mut body = String::new();
   let desk = Store::new("desk");
 
@@ -14,6 +18,10 @@ pub fn get<'app>(_req: &mut Request, res: Response<'app>) -> MiddlewareResult<'a
 }
 
 pub fn post<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
+  if !req.origin.remote_addr.ip().is_loopback() {
+    return not_allowed(res);
+  }
+
   let desk = Store::new("desk");
 
   match req.form_body() {
@@ -24,7 +32,7 @@ pub fn post<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'a
         None => bad_request(res),
         Some(target) => {
           desk.shelf.set(site, target);
-          res.send("Success")
+          res.send("Two'O'Four")
         }
       }
     }
