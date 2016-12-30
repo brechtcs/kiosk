@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::io::Read;
 
 use hyper::Client;
@@ -17,28 +16,9 @@ pub fn serve<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'
 }
 
 fn try_host<'app>(hostname: String, uri: String, res: Response<'app>) -> MiddlewareResult<'app> {
-  let mut domain: HashMap<String, &str> = HashMap::new();
-  let mut index = 0;
-  for sub in hostname.split(".") {
-    index += 1;
-    domain.insert(index.to_string(), sub);
-  }
-
-  match domain.get("2") {
-    Some(&"pamphlets") => match domain.get("3") {
-      Some(&"me") => try_serve(domain.get("1").unwrap(), uri, res),
-      Some(_) => bad_request(res),
-      None => bad_request(res)
-    },
-    Some(_) => bad_request(res),
-    None => bad_request(res)
-  }
-}
-
-fn try_serve<'app>(subdomain: &str, uri: String, res: Response<'app>) -> MiddlewareResult<'app> {
   let desk = Store::new("desk");
 
-  match desk.shelf.get(subdomain) {
+  match desk.shelf.get(&hostname) {
     Some(target) => try_proxy(target, uri, res),
     None => not_found(res)
   }
