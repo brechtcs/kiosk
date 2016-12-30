@@ -1,10 +1,10 @@
 [package]
-name = "pamphlets"
+name = "kiosk"
 version = "0.1.0"
 authors = ["Brecht Savelkoul <brecht.savelkoul@gmail.com>"]
 
 [[bin]]
-name = "pamphlets"
+name = "kiosk"
 path = "src/main.rs"
 
 [dependencies]
