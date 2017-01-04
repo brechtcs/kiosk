@@ -1,8 +1,7 @@
-use std::io::Read;
-
+use std::io;
 use hyper::Client;
 use hyper::header::Host;
-use nickel::{Request, Response, MiddlewareResult};
+use nickel::{Request, Response, MiddlewareResult, Halt};
 use reject::{bad_request, not_found, server_error};
 use store::Store;
 
@@ -11,7 +10,13 @@ pub fn serve<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'
 
   match req.origin.headers.get::<Host>() {
     None => bad_request(res),
-    Some(host) => try_host(host.hostname.to_string(), uri, res)
+    Some(host) => {
+      let hostname = host.hostname.to_string();
+      let method = req.origin.method.to_string().to_uppercase();
+
+      println!("{} {}{}", method, hostname, uri);
+      try_host(hostname, uri, res)
+    }
   }
 }
 
@@ -31,14 +36,13 @@ fn try_proxy<'app>(address: String, uri: String, mut res: Response<'app>) -> Mid
   match http.get(&url).send() {
     Err(why) => server_error(res, &why.to_string(), "try_proxy request"),
     Ok(mut remote) => {
-      let mut body = String::new();
-
       *res.status_mut() = remote.status.clone();
       *res.headers_mut() = remote.headers.clone();
 
-      match remote.read_to_string(&mut body) {
-        Err(why) => server_error(res, &why.to_string(), "try_proxy reader"),
-        Ok(_) => res.send(body)
+      let mut stream = try!(res.start());
+      match io::copy(&mut remote, &mut stream) {
+        Err(why) => stream.bail(format!("{}", why)),
+        Ok(_) => Ok(Halt(stream))
       }
     }
   }
