@@ -41,7 +41,7 @@ fn try_proxy<'app>(address: String, uri: String, mut res: Response<'app>) -> Mid
 
       let mut stream = try!(res.start());
       match io::copy(&mut remote, &mut stream) {
-        Err(why) => stream.bail(format!("{}", why)),
+        Err(why) => stream.bail(format!("Stream error: {}", why)),
         Ok(_) => Ok(Halt(stream))
       }
     }
