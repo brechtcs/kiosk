@@ -6,27 +6,44 @@
 </head>
 <body>
   <h1>Kiosk</h1>
-  <form>
-    <fieldset>
-      <p>
-        <label for="site">Domain:</label>
-        <input id="site" type="text" name="site">
-      </p>
-      <p>
-        <label for="target">Target:</label>
-        <input id="target" type="text" name="target">
-      </p>
-      <p>
-        <button type="submit">Submit</button>
-        <button type="reset">Clear</button>
-      </p>
-    </fieldset>
-  </form>
-  <ul></ul>
+  <section>
+    <h2>Domains</h2>
+    <form id="remove">
+      <fieldset>
+        <ul id="domains"></ul>
+        <div>
+          <input type="text" name="domain">
+          <input type="submit" value="Delete">
+        </div>
+      </fieldset>
+    </form>
+  </section>
+  <section>
+    <h2>Update</h2>
+    <form id="update">
+      <fieldset>
+        <p>
+          <label for="site">Domain:</label>
+          <input id="site" type="text" name="site">
+        </p>
+        <p>
+          <label for="target">Target:</label>
+          <input id="target" type="text" name="target">
+        </p>
+        <p>
+          <button type="submit">Submit</button>
+          <button type="reset">Clear</button>
+        </p>
+      </fieldset>
+    </form>
+  </section>
 
   <script>
-    const form = document.querySelector("body > form")
-    form.addEventListener('submit', submit)
+    const updater = document.querySelector('update')
+    update.addEventListener('submit', post)
+
+    const remover = document.getElementById('remove')
+    remover.addEventListener('submit', remove)
 
     function get () {
       fetch('/_pamphlets').
@@ -35,14 +52,15 @@
     }
 
     function remove (event) {
-      if (confirm('Are you sure?')) {
-        fetch(`/_pamphlets?site=${event.target.id}`, {
-          method: 'delete'
-        }).then(get)
-      }
+      fetch(`/_pamphlets?site=${event.target.elements.domain.value}`, {
+        method: 'delete'
+      }).then(get)
+
+      event.target.reset()
+      event.preventDefault()
     }
 
-    function submit (event) {
+    function post (event) {
       const params = new URLSearchParams()
       params.set("target", event.target.elements.target.value)
       params.set("site", event.target.elements.site.value)
@@ -57,21 +75,12 @@
     }
 
     function render (pamphlets) {
-      const list = document.querySelector('body > ul')
+      const list = document.getElementById('domains')
       list.innerHTML = pamphlets.sort((a, b) => a > b).map(pamphlet).join('')
-
-      const buttons = list.querySelectorAll('button')
-
-      Object.keys(buttons).
-        map(key => buttons[key]).
-        forEach(button => button.addEventListener('click', remove))
     }
 
     function pamphlet (hostname) {
-      return `<li>
-        <label>${hostname}:</label>
-        <button id=${hostname} type="submit">delete</button>
-      </li>`
+      return `<li>${hostname}</li>`
     }
 
     get()
