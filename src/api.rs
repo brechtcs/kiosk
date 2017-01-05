@@ -1,4 +1,4 @@
-use nickel::{FormBody, Request, Response, MiddlewareResult};
+use nickel::{FormBody, Request, Response, MiddlewareResult, QueryString};
 use reject::{bad_request, not_allowed};
 use store::Store;
 
@@ -15,6 +15,21 @@ pub fn get<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'ap
     body.push_str("\n");
   }
   res.send(body)
+}
+
+pub fn delete<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
+  if !req.origin.remote_addr.ip().is_loopback() {
+    return not_allowed(res);
+  }
+
+  let desk = Store::new("desk");
+
+  match req.query().get("site") {
+    Some(site) => desk.shelf.delete(site),
+    None => ()
+  }
+
+  res.send("Two'O'Four")
 }
 
 pub fn post<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {

@@ -13,6 +13,7 @@ use pamphlet::vhost;
 fn main() {
   let mut routes = Nickel::router();
   routes.get("/_pamphlets", api::get);
+  routes.delete("/_pamphlets", api::delete);
   routes.post("/_pamphlets", api::post);
 
   let mut app = Nickel::new();
