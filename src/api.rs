@@ -7,13 +7,17 @@ pub fn get<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'ap
     return not_allowed(res);
   }
 
-  let mut body = String::new();
+  let mut body = String::from("[");
   let desk = Store::new("desk");
 
   for address in desk.shelf.keys() {
+    body.push_str("\"");
     body.push_str(&address);
-    body.push_str("\n");
+    body.push_str("\",");
   }
+  body.pop();
+  body.push_str("]");
+
   res.send(body)
 }
 
