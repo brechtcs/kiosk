@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kiosk - Settings</title>
+</head>
+<body>
+  <h1>Kiosk</h1>
+  <form>
+    <fieldset>
+      <p>
+        <label for="site">Domain:</label>
+        <input id="site" type="text" name="site">
+      </p>
+      <p>
+        <label for="target">Target:</label>
+        <input id="target" type="text" name="target">
+      </p>
+      <p>
+        <button type="submit">Submit</button>
+        <button type="reset">Clear</button>
+      </p>
+    </fieldset>
+  </form>
+  <ul></ul>
+
+  <script>
+    const form = document.querySelector("body > form")
+    form.addEventListener('submit', submit)
+
+    function get () {
+      fetch('/_pamphlets').
+        then(res => res.json()).
+        then(render)
+    }
+
+    function remove (event) {
+      fetch(`/_pamphlets?site=${event.target.id}`, {
+        method: 'delete'
+      }).then(get)
+    }
+
+    function submit (event) {
+      const params = new URLSearchParams()
+      params.set("target", event.target.elements.target.value)
+      params.set("site", event.target.elements.site.value)
+
+      fetch('/_pamphlets', {
+        method: 'post',
+        body: params
+      }).then(get)
+
+      event.target.reset()
+      event.preventDefault()
+    }
+
+    function render (pamphlets) {
+      const list = document.querySelector('body > ul')
+      list.innerHTML = pamphlets.sort((a, b) => a > b).map(pamphlet).join('')
+
+      const buttons = list.querySelectorAll('button')
+
+      Object.keys(buttons).
+        map(key => buttons[key]).
+        forEach(button => button.addEventListener('click', remove))
+    }
+
+    function pamphlet (hostname) {
+      return `<li>
+        <label>${hostname}:</label>
+        <button id=${hostname} type="submit">delete</button>
+      </li>`
+    }
+
+    get()
+  </script>
+</body>
+</html>
