@@ -5,7 +5,7 @@ use nickel::{Request, Response, MiddlewareResult, Halt};
 use reject::{bad_request, not_found, server_error};
 use store::Store;
 
-pub fn serve<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
+pub fn vhost<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'app> {
   let uri = req.origin.uri.to_string();
 
   match req.origin.headers.get::<Host>() {
@@ -24,12 +24,12 @@ fn try_host<'app>(hostname: String, uri: String, res: Response<'app>) -> Middlew
   let desk = Store::new("desk");
 
   match desk.shelf.get(&hostname) {
-    Some(target) => try_proxy(target, uri, res),
+    Some(target) => try_serve(target, uri, res),
     None => not_found(res)
   }
 }
 
-fn try_proxy<'app>(address: String, uri: String, mut res: Response<'app>) -> MiddlewareResult<'app> {
+fn try_serve<'app>(address: String, uri: String, mut res: Response<'app>) -> MiddlewareResult<'app> {
   let http = Client::new();
   let url = address + &uri;
 

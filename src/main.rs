@@ -8,12 +8,16 @@ mod reject;
 mod store;
 
 use nickel::{Nickel, HttpRouter};
+use pamphlet::vhost;
 
 fn main() {
+  let mut routes = Nickel::router();
+  routes.get("/_pamphlets", api::get);
+  routes.post("/_pamphlets", api::post);
+
   let mut app = Nickel::new();
-  app.post("/_pamphlets", api::post);
-  app.get("/_pamphlets", api::get);
-  app.get("**", pamphlet::serve);
+  app.utilize(routes);
+  app.utilize(vhost);
   app.listen("0.0.0.0:80").expect("Server bind failure");
 }
 
