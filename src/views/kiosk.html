@@ -35,9 +35,11 @@
     }
 
     function remove (event) {
-      fetch(`/_pamphlets?site=${event.target.id}`, {
-        method: 'delete'
-      }).then(get)
+      if (confirm('Are you sure?')) {
+        fetch(`/_pamphlets?site=${event.target.id}`, {
+          method: 'delete'
+        }).then(get)
+      }
     }
 
     function submit (event) {
