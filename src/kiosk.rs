@@ -6,5 +6,5 @@ pub fn get<'app>(req: &mut Request, res: Response<'app>) -> MiddlewareResult<'ap
     return not_allowed(res);
   }
 
-  res.send(include_str!("views/kiosk.html"))
+  res.send(include_str!("screens/kiosk.html"))
 }
