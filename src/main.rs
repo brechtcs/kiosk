@@ -21,6 +21,7 @@ fn main() {
   let mut app = Nickel::new();
   app.utilize(routes);
   app.utilize(vhost);
+  app.keep_alive_timeout(None);
   app.listen("0.0.0.0:80").expect("Server bind failure");
 }
 
