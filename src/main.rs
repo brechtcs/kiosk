@@ -8,20 +8,23 @@ mod pamphlet;
 mod reject;
 mod store;
 
+use std::thread;
 use nickel::{Nickel, HttpRouter};
 use pamphlet::vhost;
 
 fn main() {
-  let mut routes = Nickel::router();
-  routes.get("/_kiosk", kiosk::get);
-  routes.get("/_pamphlets", api::get);
-  routes.delete("/_pamphlets", api::delete);
-  routes.post("/_pamphlets", api::post);
+  thread::spawn(|| {
+    let mut config = Nickel::new();
+    config.get("/", kiosk::get);
+    config.get("/_pamphlets", api::get);
+    config.delete("/_pamphlets", api::delete);
+    config.post("/_pamphlets", api::post);
+    config.listen("127.0.0.1:19588").expect("Config service bind failure");
+  });
 
-  let mut app = Nickel::new();
-  app.utilize(routes);
-  app.utilize(vhost);
-  app.keep_alive_timeout(None);
-  app.listen("0.0.0.0:80").expect("Server bind failure");
+  let mut host = Nickel::new();
+  host.utilize(vhost);
+  host.keep_alive_timeout(None);
+  host.listen("0.0.0.0:80").expect("Host service bind failure");
 }
 
